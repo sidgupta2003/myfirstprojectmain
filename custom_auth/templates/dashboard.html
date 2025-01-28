@@ -1,0 +1,49 @@
+{% extends 'layouts/app.html' %}
+
+{% block content %}
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="#">Dashboard</a>
+    <ul class="navbar-nav ml-auto">
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'create_product' %}">Create Product</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+        </li>
+    </ul>
+</nav>
+
+<h1>Dashboard: {{ request.user.username }}</h1>
+
+<h2>Products</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for product in products %}
+            <tr>
+                <td>{{ product.name }}</td>
+                <td>{{ product.price }}</td>
+                <td>{{ product.description }}</td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="3">No products found.</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
+
+{% comment %} {% extends 'layouts/app.html' %}
+{% block content %}
+<h1> Dashboard : {{request.user.username}}</h1>
+<a href="{% url 'logout' %}" class="btn btn-default">Logout</a>
+
+{% endblock %} {% endcomment %}
+

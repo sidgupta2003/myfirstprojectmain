@@ -1,0 +1,10 @@
+{% extends 'layouts/app.html' %}
+
+{% block content %}
+<h1>Create Product</h1>
+<form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}  <!-- Render form fields as paragraphs -->
+    <button type="submit" class="btn btn-primary">Create Product</button>
+</form>
+{% endblock %}

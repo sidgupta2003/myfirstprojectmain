@@ -1,63 +1,179 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, logout
+from django.contrib.auth.decorators import login_required
 from .middlewares import auth, guest
-from .forms import ProductForm   #newww
-from .models import Product   #neww
+from .forms import ProductForm, UserRegistrationForm
+from .models import Product, CustomUser
 
 @guest
 def register_view(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = UserRegistrationForm(request.POST)
         if form.is_valid():
-            user=form.save()
-            login(request,user)
-            return redirect('dashboard')
+            form.save()
+            return redirect('login')
     else:
-        initial_data = {'username' :'','password1':'','password2':''}
-        form = UserCreationForm(initial=initial_data)
-    return render(request, 'auth/register.html',{"form":form})
+        form = UserRegistrationForm()
+    return render(request, 'auth/register.html', {'form': form})
 
-    
-
+@guest
 def login_view(request):
     if request.method == 'POST':
-        form = AuthenticationForm(request, data=request.POST)
+        form = AuthenticationForm(data=request.POST)
         if form.is_valid():
-            user=form.get_user()
-            login(request,user)
-            return redirect('dashboard')
+            user = form.get_user()
+            login(request, user)
+            if user.role == 'superadmin':
+                return redirect('superadmin_dashboard')
+            elif user.role == 'admin':
+                return redirect('admin_dashboard')
+            else:
+                return redirect('user_dashboard')
     else:
-        initial_data = {'username' :'','password1':''}
-        form = AuthenticationForm(initial=initial_data)
-    return render(request, 'auth/login.html',{"form":form})
+        form = AuthenticationForm()
+    return render(request, 'auth/login.html', {'form': form})
 
 @auth
-def dashboard_view(request):
-    return render(request, 'dashboard.html')
 def logout_view(request):
     logout(request)
     return redirect('login')
 
-# Create your views here.
+@login_required
+# def superadmin_dashboard_view(request):
+#     products = Product.objects.all()
+#     return render(request, 'dashboard/superadmin_dashboard.html', {'products': products})
 
+# def superadmin_dashboard_view(request):
+#     if request.user.role != 'superadmin':
+#         return redirect('login')  # Redirect to login or an appropriate page
+#     products = Product.objects.all()
+#     return render(request, 'dashboard/superadmin_dashboard.html', {'products': products})
+# def superadmin_dashboard_view(request):
+#     if not request.user.is_authenticated:
+#         return redirect('login')
+#     if request.user.role != 'superadmin':
+#         return redirect('login')  
+#     products = Product.objects.all()
+#     return render(request, 'dashboard/superadmin_dashboard.html', {'products': products})
 
-# def dashboard_view(request):   #newwww
-#     products = Product.objects.all()  # Fetch all products
-#     return render(request, 'dashboard.html', {'products': products})
+def superadmin_dashboard_view(request):
+    if request.user.role != 'superadmin':
+        return redirect('login')  # Redirect to login or an appropriate page
+    products = Product.objects.all()
+    return render(request, 'dashboard/superadmin_dashboard.html', {'products': products})
 
+@login_required
+def admin_dashboard_view(request):
+    products = Product.objects.all()
+    return render(request, 'dashboard/admin_dashboard.html', {'products': products})
+# def admin_dashboard_view(request):
+#     if request.user.role not in ['admin', 'superadmin']:
+#         return redirect('login')  # Redirect to login or an appropriate page
+#     products = Product.objects.all()
+#     return render(request, 'dashboard/admin_dashboard.html', {'products': products})
 
-def create_product(request):   #newww
+@login_required
+# def user_dashboard_view(request):
+#     products = Product.objects.all()
+#     return render(request, 'dashboard/user_dashboard.html', {'products': products})
+def user_dashboard_view(request):
+    if request.user.role != 'user':
+        return redirect('login')  # Redirect to login or an appropriate page
+    return render(request, 'dashboard/user_dashboard.html')
+
+@login_required
+def create_product(request):
     if request.method == 'POST':
         form = ProductForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('dashboard')  # Redirect to the dashboard after creating the product
+            return redirect('dashboard')
     else:
         form = ProductForm()
     return render(request, 'create_product.html', {'form': form})
 
-
-def dashboard_view(request):    #neww
-    products = Product.objects.all()  # Fetch all products
+@login_required
+def dashboard_view(request):
+    products = Product.objects.all()
     return render(request, 'dashboard.html', {'products': products})
+
+
+
+
+
+# from django.shortcuts import render, redirect
+# from django.contrib.auth.forms import AuthenticationForm
+# from django.contrib.auth import login, logout
+# from django.contrib.auth.decorators import login_required
+# from .middlewares import auth, guest
+# from .forms import UserRegistrationForm, ProductForm
+# from .models import Product, CustomUser
+
+# @guest
+# def login_view(request):
+#     if request.method == 'POST':
+#         form = AuthenticationForm(data=request.POST)
+#         if form.is_valid():
+#             user = form.get_user()
+#             login(request, user)
+#             if user.role == 'superadmin':
+#                 return redirect('superadmin_dashboard')
+#             elif user.role == 'admin':
+#                 return redirect('admin_dashboard')
+#             else:
+#                 return redirect('user_dashboard')
+#     else:
+#         form = AuthenticationForm()
+#     return render(request, 'auth/login.html', {'form': form})
+
+# @auth
+# def logout_view(request):
+#     logout(request)
+#     return redirect('login')
+
+# @login_required
+# def superadmin_dashboard_view(request):
+#     if request.user.role != 'superadmin':
+#         return redirect('login')  # Redirect to login or an appropriate page
+#     products = Product.objects.all()
+#     return render(request, 'dashboard/superadmin_dashboard.html', {'products': products})
+
+# @login_required
+# def admin_dashboard_view(request):
+#     if request.user.role not in ['admin', 'superadmin']:
+#         return redirect('login')  # Redirect to login or an appropriate page
+#     products = Product.objects.all()
+#     return render(request, 'dashboard/admin_dashboard.html', {'products': products})
+
+# @login_required
+# def user_dashboard_view(request):
+#     if request.user.role != 'user':
+#         return redirect('login')  # Redirect to login or an appropriate page
+#     return render(request, 'dashboard/user_dashboard.html')
+
+# @login_required
+# def create_product(request):
+#     if request.user.role not in ['admin', 'superadmin']:
+#         return redirect('login')  # Redirect to login or an appropriate page
+#     if request.method == 'POST':
+#         form = ProductForm(request.POST)
+#         if form.is_valid():
+#             form.save()
+#             return redirect('admin_dashboard')
+#     else:
+#         form = ProductForm()
+#     return render(request, 'create_product.html', {'form': form})
+
+# @guest
+# def register_view(request):
+#     if request.method == 'POST':
+#         form = UserRegistrationForm(request.POST)
+#         if form.is_valid():
+#             form.save()
+#             return redirect('login')
+#     else:
+#         form = UserRegistrationForm()
+#     return render(request, 'auth/register.html', {'form': form})
+
+

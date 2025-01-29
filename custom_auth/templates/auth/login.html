@@ -1,5 +1,80 @@
-<!-- filepath: /c:/Users/BPIN/OneDrive/Desktop/main/myfirstproject/custom_auth/templates/auth/login.html -->
+<!-- filepath: /C:/Users/BPIN/OneDrive/Desktop/main/myfirstproject/custom_auth/templates/auth/login.html -->
 {% extends 'layouts/app.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card" style="background-color: #f8f9fa; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+                <div class="card-header bg-primary text-white text-center" style="border-top-left-radius: 10px; border-top-right-radius: 10px;">
+                    <h2>Login</h2>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{% url 'login' %}">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="{{ form.username.id_for_label }}">Username:</label>
+                            <input type="text" name="{{ form.username.name }}" class="form-control" value="{{ form.username.value }}">
+                            <span class="text-danger">{{ form.username.errors }}</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ form.password.id_for_label }}">Password:</label>
+                            <input type="password" name="{{ form.password.name }}" class="form-control" value="{{ form.password.value }}">
+                            <span class="text-danger">{{ form.password.errors }}</span>
+                        </div>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary">Login</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer text-center">
+                    <p>Don't have an account? <a href="{% url 'register' %}">Register here</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+
+{% comment %} {% extends 'layouts/app.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card" style="background-color: #f8f9fa; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+                <div class="card-header bg-primary text-white text-center" style="border-top-left-radius: 10px; border-top-right-radius: 10px;">
+                    <h2>Login</h2>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{% url 'login' %}">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="{{ form.username.id_for_label }}">Username:</label>
+                            <input type="text" name="{{ form.username.name }}" class="form-control" value="{{ form.username.value }}">
+                            <span class="text-danger">{{ form.username.errors }}</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ form.password.id_for_label }}">Password:</label>
+                            <input type="password" name="{{ form.password.name }}" class="form-control" value="{{ form.password.value }}">
+                            <span class="text-danger">{{ form.password.errors }}</span>
+                        </div>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary">Login</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} {% endcomment %}
+
+
+<!-- filepath: /c:/Users/BPIN/OneDrive/Desktop/main/myfirstproject/custom_auth/templates/auth/login.html -->
+{% comment %} {% extends 'layouts/app.html' %}
 
 {% block content %}
 <div class="row justify-content-center">
@@ -21,4 +96,4 @@
         </form>
     </div>
 </div>
-{% endblock %}
+{% endblock %} {% endcomment %}

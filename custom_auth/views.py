@@ -56,7 +56,9 @@ def logout_view(request):
 #         return redirect('login')  
 #     products = Product.objects.all()
 #     return render(request, 'dashboard/superadmin_dashboard.html', {'products': products})
+# from .decorators import role_required
 
+# @role_required('superadmin')
 def superadmin_dashboard_view(request):
     if request.user.role != 'superadmin':
         return redirect('login')  # Redirect to login or an appropriate page
@@ -65,6 +67,8 @@ def superadmin_dashboard_view(request):
 
 @login_required
 def admin_dashboard_view(request):
+    if request.user.role != 'admin':
+        return redirect('login')
     products = Product.objects.all()
     return render(request, 'dashboard/admin_dashboard.html', {'products': products})
 # def admin_dashboard_view(request):
@@ -80,15 +84,33 @@ def admin_dashboard_view(request):
 def user_dashboard_view(request):
     if request.user.role != 'user':
         return redirect('login')  # Redirect to login or an appropriate page
-    return render(request, 'dashboard/user_dashboard.html')
+    products = Product.objects.all()
+    return render(request, 'dashboard/user_dashboard.html', {'products': products})
 
 @login_required
+# def create_product(request):
+#     if request.method == 'POST':
+#         form = ProductForm(request.POST)
+#         if form.is_valid():
+#             form.save()
+#             return redirect('dashboard')
+#     else:
+#         form = ProductForm()
+#     return render(request, 'create_product.html', {'form': form})
+
 def create_product(request):
+    if request.user.role not in ['admin', 'superadmin', 'user']:
+        return redirect('login')  # Redirect to login or an appropriate page
     if request.method == 'POST':
         form = ProductForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('dashboard')
+            if request.user.role == 'superadmin':
+                return redirect('superadmin_dashboard')
+            elif request.user.role == 'admin':
+                return redirect('admin_dashboard')
+            else:
+                return redirect('user_dashboard')
     else:
         form = ProductForm()
     return render(request, 'create_product.html', {'form': form})

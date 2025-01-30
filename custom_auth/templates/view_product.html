@@ -1,0 +1,30 @@
+<!-- filepath: /C:/Users/BPIN/OneDrive/Desktop/main/myfirstproject/custom_auth/templates/view_product.html -->
+{% extends 'layouts/app.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card" style="background-color: #f8f9fa; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+                <div class="card-header bg-primary text-white text-center" style="border-top-left-radius: 10px; border-top-right-radius: 10px;">
+                    <h2>View Product</h2>
+                </div>
+                <div class="card-body">
+                    <p><strong>Name:</strong> {{ product.name }}</p>
+                    <p><strong>Price:</strong> {{ product.price }}</p>
+                    <p><strong>Description:</strong> {{ product.description }}</p>
+                </div>
+                <div class="card-footer text-center">
+                    {% if request.user.role == 'superadmin' %}
+                        <a href="{% url 'superadmin_dashboard' %}" class="btn btn-secondary">Back</a>
+                    {% elif request.user.role == 'admin' %}
+                        <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary">Back</a>
+                    {% else %}
+                        <a href="{% url 'user_dashboard' %}" class="btn btn-secondary">Back</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

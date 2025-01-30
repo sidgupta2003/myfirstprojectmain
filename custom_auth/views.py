@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
@@ -116,9 +116,55 @@ def create_product(request):
     return render(request, 'create_product.html', {'form': form})
 
 @login_required
-def dashboard_view(request):
-    products = Product.objects.all()
-    return render(request, 'dashboard.html', {'products': products})
+def register_view(request):
+    if request.method == 'POST':
+        form = UserRegistrationForm(request.POST, user=request.user)
+        if form.is_valid():
+            form.save()
+            return redirect('superadmin_dashboard')  # Redirect to the appropriate dashboard
+    else:
+        form = UserRegistrationForm()
+    return render(request, 'auth/register.html', {'form': form})
+
+
+
+@login_required
+def delete_product(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    product.delete()
+    if request.user.role == 'superadmin':
+        return redirect('superadmin_dashboard')
+    elif request.user.role == 'admin':
+        return redirect('admin_dashboard')
+    
+
+
+@login_required
+def update_product(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    if request.method == 'POST':
+        form = ProductForm(request.POST, instance=product)
+        if form.is_valid():
+            form.save()
+            if request.user.role == 'superadmin':
+                return redirect('superadmin_dashboard')
+            elif request.user.role == 'admin':
+                return redirect('admin_dashboard')
+    else:
+        form = ProductForm(instance=product)
+    return render(request, 'update_product.html', {'form': form, 'product': product})
+
+
+
+@login_required
+def view_product(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    return render(request, 'view_product.html', {'product': product})
+
+
+# def dashboard_view(request):
+#     products = Product.objects.all()
+#     return render(request, 'dashboard.html', {'products': products})
 
 
 

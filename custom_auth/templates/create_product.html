@@ -5,6 +5,43 @@
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
+            <div class="card" style="background-color:rgb(99, 129, 123); border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+                <div class="card-header bg-primary text-white text-center" style="border-top-left-radius: 10px; border-top-right-radius: 10px;">
+                    <h2>Create Product</h2>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {% csrf_token %}
+                        {{ form.as_p }}  <!-- Render form fields as paragraphs -->
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-success">Create Product</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer text-center">
+                    {% if request.user.role == 'superadmin' %}
+                        <a href="{% url 'superadmin_dashboard' %}" class="btn btn-secondary">Back</a>
+                    {% elif request.user.role == 'admin' %}
+                        <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary">Back</a>
+                    {% else %}
+                        <a href="{% url 'user_dashboard' %}" class="btn btn-secondary">Back</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+
+<!-- filepath: /C:/Users/BPIN/OneDrive/Desktop/main/myfirstproject/custom_auth/templates/create_product.html -->
+{% comment %} {% extends 'layouts/app.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
             <div class="card" style="background-color:rgb(127, 163, 134); border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
                 <div class="card-header bg-primary text-white text-center" style="border-top-left-radius: 10px; border-top-right-radius: 10px;">
                     <h2>Create Product</h2>
@@ -22,7 +59,7 @@
         </div>
     </div>
 </div>
-{% endblock %}
+{% endblock %} {% endcomment %}
 
 
 

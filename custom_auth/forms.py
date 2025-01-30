@@ -10,6 +10,12 @@ class UserRegistrationForm(UserCreationForm):
         model = CustomUser
         fields = ['username', 'email', 'password1', 'password2', 'role']
 
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super(UserRegistrationForm, self).__init__(*args, **kwargs)
+        if user and user.role == 'admin':
+            self.fields['role'].choices = [('user', 'User')]
+
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product

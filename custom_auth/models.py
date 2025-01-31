@@ -10,14 +10,39 @@ class Product(models.Model):
         return self.name
 
 ROLE_CHOICES = [
-    # ('superadmin', 'Superadmin'),
+    ('superadmin', 'Superadmin'),
     ('admin', 'Admin'),
     ('user', 'User'),
 ]
 
+class Role(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+
+    def __str__(self):
+        return self.name
+
 class CustomUser(AbstractUser):
-    email = models.EmailField(unique=True)  # Ensure email is unique
+    email = models.EmailField(unique=True)  
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='user')
+    # created_by = models.ForeignKey('self', null=True, blank=True, on_delete=models.SET_NULL, related_name='created_users')
+
+    def __str__(self):
+        return self.username
+
+class Admin(models.Model):
+    role = models.ForeignKey(Role, on_delete=models.CASCADE)
+    username = models.CharField(max_length=150, unique=True)
+    email = models.EmailField(unique=True)
+    password = models.CharField(max_length=128)
+
+    def __str__(self):
+        return self.username
+    
+class User(models.Model):
+    admin = models.ForeignKey(Admin, on_delete=models.CASCADE)
+    username = models.CharField(max_length=150, unique=True)
+    email = models.EmailField(unique=True)
+    password = models.CharField(max_length=128)
 
     def __str__(self):
         return self.username

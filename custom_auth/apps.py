@@ -11,3 +11,10 @@ class CustomAuthConfig(AppConfig):
     # for  superuser
     def ready(self):
         import custom_auth.signals
+
+
+class CustomAuthConfig(AppConfig):
+    name = 'custom_auth'
+
+    def ready(self):
+        import custom_auth.signals

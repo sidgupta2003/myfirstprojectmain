@@ -1,17 +1,36 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth import login, logout
+from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from .middlewares import auth, guest
 from .forms import ProductForm, UserRegistrationForm
-from .models import Product, CustomUser
+from .models import Product, CustomUser, ROLE_CHOICES, Admin, User
 
 @guest
+
+
+
+# def register_view(request):
+#     if request.method == 'POST':
+#         form = UserRegistrationForm(request.POST)
+#         if form.is_valid():
+#             user = form.save(commit=False)
+#             if request.user.role == 'admin':
+#                 user.created_by = request.user
+#             user.save()
+#             return redirect('login')
+#     else:
+#         form = UserRegistrationForm()
+#     return render(request, 'auth/register.html', {'form': form})
+
 def register_view(request):
     if request.method == 'POST':
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
-            form.save()
+            user = form.save(commit=False)
+            if request.user.role == 'admin':
+                user.admin = Admin.objects.get(username=request.user.username)
+            user.save()
             return redirect('login')
     else:
         form = UserRegistrationForm()
@@ -21,18 +40,37 @@ def register_view(request):
 def login_view(request):
     if request.method == 'POST':
         form = AuthenticationForm(data=request.POST)
+        selected_role = request.POST.get('role')
         if form.is_valid():
             user = form.get_user()
-            login(request, user)
-            if user.role == 'superadmin':
-                return redirect('superadmin_dashboard')
-            elif user.role == 'admin':
-                return redirect('admin_dashboard')
+            if user.role == selected_role:
+                login(request, user)
+                if user.role == 'superadmin':
+                    return redirect('superadmin_dashboard')
+                elif user.role == 'admin':
+                    return redirect('admin_dashboard')
+                else:
+                    return redirect('user_dashboard')
             else:
-                return redirect('user_dashboard')
+                form.add_error(None, 'Role does not match.')
     else:
         form = AuthenticationForm()
-    return render(request, 'auth/login.html', {'form': form})
+    return render(request, 'auth/login.html', {'form': form, 'roles': ROLE_CHOICES})
+# def login_view(request):
+#     if request.method == 'POST':
+#         form = AuthenticationForm(data=request.POST)
+#         if form.is_valid():
+#             user = form.get_user()
+#             login(request, user)
+#             if user.role == 'superadmin':
+#                 return redirect('superadmin_dashboard')
+#             elif user.role == 'admin':
+#                 return redirect('admin_dashboard')
+#             else:
+#                 return redirect('user_dashboard')
+#     else:
+#         form = AuthenticationForm()
+#     return render(request, 'auth/login.html', {'form': form})
 
 @auth
 def logout_view(request):
@@ -160,6 +198,15 @@ def update_product(request, product_id):
 def view_product(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     return render(request, 'view_product.html', {'product': product})
+
+
+
+
+
+
+
+
+
 
 
 # def dashboard_view(request):

@@ -46,3 +46,32 @@ def create_superuser(sender, **kwargs):
 #             email=instance.email,
 #             password=instance.password  
 #         )
+
+@receiver(post_save, sender=CustomUser)
+# def create_user(sender, instance, created, **kwargs):
+#     if created and instance.role == 'user' and instance.created_by and instance.created_by.role in ['admin', 'superadmin']:
+#         try:
+#             admin = Admin.objects.get(username=instance.created_by.username)
+#             User.objects.create(
+#                 admin_id=admin.id,
+#                 username=instance.username,
+#                 email=instance.email,
+#                 password=instance.password
+#             )
+#         except Admin.DoesNotExist:
+#             # Handle the case where the Admin object does not exist
+#             pass
+
+def create_user(sender, instance, created, **kwargs):
+    if created and instance.role == 'user' and instance.created_by:
+        try:
+            admin = Admin.objects.get(username=instance.created_by.username)
+            User.objects.create(
+                admin_id=admin.id,
+                username=instance.username,
+                email=instance.email,
+                password=instance.password
+            )
+        except Admin.DoesNotExist:
+            # Handle the case where the Admin object does not exist
+            pass

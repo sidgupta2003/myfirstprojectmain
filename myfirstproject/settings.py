@@ -84,7 +84,7 @@ DATABASES = {
     # }
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'myfirstproject',  # Replace with your database name
+        'NAME': 'myfirstproject_main',  # Replace with your database name
         'USER': 'root',       # Replace with your MySQL username
         'PASSWORD': '',   # Replace with your MySQL password
         'HOST': 'localhost',           # Or use an IP address if the database is remote

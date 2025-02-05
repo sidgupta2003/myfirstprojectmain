@@ -24,7 +24,7 @@ class Role(models.Model):
 class CustomUser(AbstractUser):
     email = models.EmailField(unique=True)  
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='user')
-    # created_by = models.ForeignKey('self', null=True, blank=True, on_delete=models.SET_NULL, related_name='created_users')
+    created_by = models.ForeignKey('self', null=True, blank=True, on_delete=models.SET_NULL, related_name='created_users')
 
     def __str__(self):
         return self.username

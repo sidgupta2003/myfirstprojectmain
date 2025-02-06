@@ -3,8 +3,9 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from .middlewares import auth, guest
-from .forms import ProductForm, UserRegistrationForm
-from .models import Product, CustomUser, ROLE_CHOICES, Admin, User, Role
+from .forms import ProductForm, UserRegistrationForm, AdminRegistrationForm
+from .models import Product, CustomUser, ROLE_CHOICES, Admin, User, Role, ROLE_CHOICESS, Cart
+# from .forms import AddressForm
 
 @guest
 
@@ -23,18 +24,7 @@ def register_view(request):
     else:
         form = UserRegistrationForm()
     return render(request, 'auth/register.html', {'form': form})
-# def register_view(request):
-#     if request.method == 'POST':
-#         form = UserRegistrationForm(request.POST)
-#         if form.is_valid():
-#             user = form.save(commit=False)
-#             if request.user.role == 'admin':
-#                 user.admin = Admin.objects.get(username=request.user.username)
-#             user.save()
-#             return redirect('login')
-#     else:
-#         form = UserRegistrationForm()
-#     return render(request, 'auth/register.html', {'form': form})
+
 
 @guest
 def login_view(request):
@@ -78,16 +68,28 @@ def logout_view(request):
     return redirect('login')
 
 @login_required
+
 def superadmin_dashboard(request):
     if request.method == 'POST':
-        form = UserRegistrationForm(request.POST)
+        form = AdminRegistrationForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
             user.created_by = request.user
+            user.role = 'admin'  # Set the role to admin by default
             user.save()
+            # Create a corresponding entry in the Admin table
+            role_instance = Role.objects.get(name='admin')
+            Admin.objects.get_or_create(
+                username=user.username,
+                defaults={
+                    'email': user.email,
+                    'password': user.password,
+                    'role': role_instance  # Assign the Role instance
+                }
+            )
             return redirect('superadmin_dashboard')
     else:
-        form = UserRegistrationForm()
+        form = AdminRegistrationForm()
     admins = Admin.objects.all()
     return render(request, 'dashboard/superadmin_dashboard.html', {'form': form, 'admins': admins})
 # def superadmin_dashboard(request):
@@ -96,23 +98,13 @@ def superadmin_dashboard(request):
 #         if form.is_valid():
 #             user = form.save(commit=False)
 #             user.created_by = request.user
-#             user.role = 'admin'  # Set the role to admin by default
 #             user.save()
-#             # Create a corresponding entry in the Admin table
-#             role_instance = Role.objects.get(name='admin')
-#             Admin.objects.get_or_create(
-#                 username=user.username,
-#                 defaults={
-#                     'email': user.email,
-#                     'password': user.password,
-#                     'role': role_instance  # Assign the Role instance
-#                 }
-#             )
 #             return redirect('superadmin_dashboard')
 #     else:
 #         form = UserRegistrationForm()
 #     admins = Admin.objects.all()
 #     return render(request, 'dashboard/superadmin_dashboard.html', {'form': form, 'admins': admins})
+
 
 
 
@@ -181,6 +173,33 @@ def create_product(request):
 #     return render(request, 'auth/register.html', {'form': form})
 
 
+# def register_view(request):
+#     if request.method == 'POST':
+#         form = UserRegistrationForm(request.POST)
+#         if form.is_valid():
+#             user = form.save(commit=False)
+#             user.role = 'user'  # Set the role to user by default
+#             if request.user.role in ['admin', 'superadmin']:
+#                 user.created_by = request.user
+#             user.save()
+#             # Create a corresponding entry in the User table
+#             if request.user.role in ['admin', 'superadmin']:
+#                 try:
+#                     admin = Admin.objects.get(username=request.user.username)
+#                     User.objects.create(
+#                         admin_id=admin.id,
+#                         username=user.username,
+#                         email=user.email,
+#                         password=user.password
+#                     )
+#                 except Admin.DoesNotExist:
+#                     # Handle the case where the Admin object does not exist
+#                     pass
+#             return redirect('login')
+#     else:
+#         form = UserRegistrationForm()
+#     return render(request, 'auth/register.html', {'form': form})
+
 def register_view(request):
     if request.method == 'POST':
         form = UserRegistrationForm(request.POST)
@@ -216,38 +235,7 @@ def register_view(request):
         form = UserRegistrationForm()
     return render(request, 'auth/register.html', {'form': form})
 
-# def register_view(request):
-#     if request.method == 'POST':
-#         form = UserRegistrationForm(request.POST)
-#         if form.is_valid():
-#             user = form.save(commit=False)
-#             try:
-#                 if request.user.role in ['admin', 'superadmin']:
-#                     user.created_by = request.user
-#                     user.save()
-#                     # Create a corresponding entry in the User table
-#                     User.objects.create(
-#                         admin_id=request.user.id,
-#                         username=user.username,
-#                         email=user.email,
-#                         password=user.password
-#                     )
-#                     # If the user is a superadmin, create an entry in the Admin table
-#                     if request.user.role == 'superadmin':
-#                         Admin.objects.get_or_create(
-#                             username=user.username,
-#                             defaults={
-#                                 'email': user.email,
-#                                 'password': user.password,
-#                             }
-#                         )
-#             except Admin.DoesNotExist:
-#                 # Handle the case where the Admin object does not exist
-#                 pass
-#             return redirect('login')
-#     else:
-#         form = UserRegistrationForm()
-#     return render(request, 'auth/register.html', {'form': form})
+
 
 
 
@@ -303,6 +291,7 @@ def create_user_view(request):
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
+            user.role = 'user'  # Set the role to user by default
             user.created_by = request.user
             user.save()
             return redirect('create_user')
@@ -311,96 +300,16 @@ def create_user_view(request):
     users = CustomUser.objects.filter(role='user')
     return render(request, 'auth/create_user.html', {'form': form, 'users': users})
 
+@login_required
+def add_to_cart(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    cart_item, created = Cart.objects.get_or_create(user=request.user, product=product, defaults={'price': product.price})
+    if not created:
+        cart_item.quantity += 1
+        cart_item.save()
+    return redirect('cart')
 
-
-
-
-
-
-
-
-
-
-# def dashboard_view(request):
-#     products = Product.objects.all()
-#     return render(request, 'dashboard.html', {'products': products})
-
-
-
-
-
-# from django.shortcuts import render, redirect
-# from django.contrib.auth.forms import AuthenticationForm
-# from django.contrib.auth import login, logout
-# from django.contrib.auth.decorators import login_required
-# from .middlewares import auth, guest
-# from .forms import UserRegistrationForm, ProductForm
-# from .models import Product, CustomUser
-
-# @guest
-# def login_view(request):
-#     if request.method == 'POST':
-#         form = AuthenticationForm(data=request.POST)
-#         if form.is_valid():
-#             user = form.get_user()
-#             login(request, user)
-#             if user.role == 'superadmin':
-#                 return redirect('superadmin_dashboard')
-#             elif user.role == 'admin':
-#                 return redirect('admin_dashboard')
-#             else:
-#                 return redirect('user_dashboard')
-#     else:
-#         form = AuthenticationForm()
-#     return render(request, 'auth/login.html', {'form': form})
-
-# @auth
-# def logout_view(request):
-#     logout(request)
-#     return redirect('login')
-
-# @login_required
-# def superadmin_dashboard_view(request):
-#     if request.user.role != 'superadmin':
-#         return redirect('login')  # Redirect to login or an appropriate page
-#     products = Product.objects.all()
-#     return render(request, 'dashboard/superadmin_dashboard.html', {'products': products})
-
-# @login_required
-# def admin_dashboard_view(request):
-#     if request.user.role not in ['admin', 'superadmin']:
-#         return redirect('login')  # Redirect to login or an appropriate page
-#     products = Product.objects.all()
-#     return render(request, 'dashboard/admin_dashboard.html', {'products': products})
-
-# @login_required
-# def user_dashboard_view(request):
-#     if request.user.role != 'user':
-#         return redirect('login')  # Redirect to login or an appropriate page
-#     return render(request, 'dashboard/user_dashboard.html')
-
-# @login_required
-# def create_product(request):
-#     if request.user.role not in ['admin', 'superadmin']:
-#         return redirect('login')  # Redirect to login or an appropriate page
-#     if request.method == 'POST':
-#         form = ProductForm(request.POST)
-#         if form.is_valid():
-#             form.save()
-#             return redirect('admin_dashboard')
-#     else:
-#         form = ProductForm()
-#     return render(request, 'create_product.html', {'form': form})
-
-# @guest
-# def register_view(request):
-#     if request.method == 'POST':
-#         form = UserRegistrationForm(request.POST)
-#         if form.is_valid():
-#             form.save()
-#             return redirect('login')
-#     else:
-#         form = UserRegistrationForm()
-#     return render(request, 'auth/register.html', {'form': form})
-
-
+@login_required
+def cart_view(request):
+    cart_items = Cart.objects.filter(user=request.user)
+    return render(request, 'cart.html', {'cart_items': cart_items})

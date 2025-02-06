@@ -84,7 +84,7 @@ DATABASES = {
     # }
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'myfirstproject_main',  # Replace with your database name
+        'NAME': 'abcde',  # Replace with your database name
         'USER': 'root',       # Replace with your MySQL username
         'PASSWORD': '',   # Replace with your MySQL password
         'HOST': 'localhost',           # Or use an IP address if the database is remote
@@ -127,7 +127,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -138,3 +138,15 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # AUTH_USER_MODEL = 'custom_auth.CustomUser'   #newww
 
 # AUTH_USER_MODEL = 'custom_auth.CustomUser'
+
+# STATICFILES_DIRS = (
+#     os.path.join(SITE_ROOT,'media'),
+#        )
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]

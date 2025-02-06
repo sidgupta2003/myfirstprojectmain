@@ -1,4 +1,94 @@
-<!-- filepath: /C:/Users/BPIN/OneDrive/Desktop/abcd/myfirstproject/custom_auth/templates/dashboard/superadmin_dashboard.html -->
+{% extends 'layouts/app.html' %}
+
+{% block content %}
+{% if request.user.role == 'superadmin' %}
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="{% url 'superadmin_dashboard' %}">Super Admin Dashboard</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'superadmin_dashboard' %}">Admin</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'create_user' %}">User</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'create_product' %}">Product</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+{% endif %}
+
+<div style="position: fixed; top: 110px; right: 190px;">
+    <button class="btn btn-success" onclick="toggleAdminForm()">Create Admin</button>
+</div>
+<div style="position: fixed; top: 150px; right: 120px; display: none;" id="createAdminForm">
+    <div class="card" style="width: 300px;">
+        <div class="card-header bg-primary text-white">
+            <h5 >Create Admin</h5>
+        </div>
+        <div class="card-body">
+            <form method="post" action="{% url 'superadmin_dashboard' %}">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card" style="background-color:rgb(173, 164, 165); border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+                <div class="card-header bg-primary text-white text-center" style="border-top-left-radius: 10px; border-top-right-radius: 10px;">
+                    <h4>Admins</h4>
+                </div>
+                <div class="card-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Email</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for admin in admins %}
+                            <tr>
+                                <td>{{ admin.username }}</td>
+                                <td>{{ admin.email }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleAdminForm() {
+    var form = document.getElementById('createAdminForm');
+    if (form.style.display === 'none' || form.style.display === '') {
+        form.style.display = 'block';
+    } else {
+        form.style.display = 'none';
+    }
+}
+</script>
+
+{% endblock %}
+
+
+{% comment %} <!-- filepath: /C:/Users/BPIN/OneDrive/Desktop/abcd/myfirstproject/custom_auth/templates/dashboard/superadmin_dashboard.html -->
 {% extends 'layouts/app.html' %}
 
 {% block content %}
@@ -63,72 +153,11 @@
     </div>
 </div>
 {% endif %}
-{% endblock %}
+{% endblock %} {% endcomment %}
 
 
 <!-- filepath: /C:/Users/BPIN/OneDrive/Desktop/abcd/myfirstproject/custom_auth/templates/dashboard/superadmin_dashboard.html -->
-{% comment %} {% extends 'layouts/app.html' %}
 
-{% block content %}
-{% if request.user.role == 'superadmin' %}
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <a class="navbar-brand" href="{% url 'superadmin_dashboard' %}">Super Admin Dashboard</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ml-auto">
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'create_user' %}">Create User</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'create_product' %}">Create Product</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'logout' %}">Logout</a>
-            </li>
-        </ul>
-    </div>
-</nav>
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card" style="background-color:rgb(99, 129, 123); border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
-                <div class="card-header bg-primary text-white text-center" style="border-top-left-radius: 10px; border-top-right-radius: 10px;">
-                    <h4>Admins</h4>
-                </div>
-                <div class="card-body">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Username</th>
-                                <th>Email</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for admin in admins %}
-                            <tr>
-                                <td>{{ admin.username }}</td>
-                                <td>{{ admin.email }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                    <button class="btn btn-success" onclick="document.getElementById('createUserForm').style.display='block'">Create User</button>
-                    <div id="createUserForm" style="display:none;">
-                        <form method="post" action="{% url 'superadmin_dashboard' %}">
-                            {% csrf_token %}
-                            {{ form.as_p }}
-                            <button type="submit" class="btn btn-primary">Submit</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-{% endif %}
-{% endblock %} {% endcomment %}
 
 <!-- filepath: /C:/Users/BPIN/OneDrive/Desktop/abcd/myfirstproject/custom_auth/templates/dashboard/superadmin_dashboard.html -->
 {% comment %} {% extends 'layouts/app.html' %}
